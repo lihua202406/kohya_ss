@@ -106,8 +106,7 @@ def UI(**kwargs):
         "root_path": kwargs.get("root_path", None),
         "debug": True,
     }
-    interface.launch(**launch_kwargs)th
-
+    interface.launch(**launch_kwargs)
 
 if __name__ == "__main__":
     # torch.cuda.set_per_process_memory_fraction(0.48)
