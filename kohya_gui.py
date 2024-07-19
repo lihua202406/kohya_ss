@@ -1,16 +1,16 @@
 import gradio as gr
 import os
 import argparse
-from kohya_gui.class_gui_config import KohyaSSGUIConfig
-from kohya_gui.dreambooth_gui import dreambooth_tab
-from kohya_gui.finetune_gui import finetune_tab
-from kohya_gui.textual_inversion_gui import ti_tab
-from kohya_gui.utilities import utilities_tab
-from kohya_gui.lora_gui import lora_tab
-from kohya_gui.class_lora_tab import LoRATools
+from dreambooth_gui import dreambooth_tab
+from finetune_gui import finetune_tab
+from textual_inversion_gui import ti_tab
+from library.utilities import utilities_tab
+from lora_gui import lora_tab
+from library.class_lora_tab import LoRATools
 
-from kohya_gui.custom_logging import setup_logging
-from kohya_gui.localization_ext import add_javascript
+import os
+from library.custom_logging import setup_logging
+from library.localization_ext import add_javascript
 
 # Set up logging
 log = setup_logging()
@@ -23,9 +23,9 @@ def UI(**kwargs):
     headless = kwargs.get("headless", False)
     log.info(f"headless: {headless}")
 
-    if os.path.exists("./assets/style.css"):
-        with open(os.path.join("./assets/style.css"), "r", encoding="utf8") as file:
-            log.debug("Load CSS...")
+    if os.path.exists("./style.css"):
+        with open(os.path.join("./style.css"), "r", encoding="utf8") as file:
+            log.info("Load CSS...")
             css += file.read() + "\n"
 
     if os.path.exists("./.release"):
@@ -39,8 +39,6 @@ def UI(**kwargs):
     interface = gr.Blocks(
         css=css, title=f"Kohya_ss GUI {release}", theme=gr.themes.Default()
     )
-    
-    config = KohyaSSGUIConfig(config_file_path=kwargs.get("config_file_path"))
 
     with interface:
         with gr.Tab("Dreambooth"):
@@ -49,13 +47,13 @@ def UI(**kwargs):
                 reg_data_dir_input,
                 output_dir_input,
                 logging_dir_input,
-            ) = dreambooth_tab(headless=headless, config=config)
+            ) = dreambooth_tab(headless=headless)
         with gr.Tab("LoRA"):
-            lora_tab(headless=headless, config=config)
+            lora_tab(headless=headless)
         with gr.Tab("Textual Inversion"):
-            ti_tab(headless=headless, config=config)
+            ti_tab(headless=headless)
         with gr.Tab("Finetuning"):
-            finetune_tab(headless=headless, config=config)
+            finetune_tab(headless=headless)
         with gr.Tab("Utilities"):
             utilities_tab(
                 train_data_dir_input=train_data_dir_input,
@@ -98,19 +96,12 @@ def UI(**kwargs):
         launch_kwargs["inbrowser"] = inbrowser
     if share:
         launch_kwargs["share"] = False
-    launch_kwargs["debug"] = True
     interface.launch(**launch_kwargs, share=False)
 
 
 if __name__ == "__main__":
     # torch.cuda.set_per_process_memory_fraction(0.48)
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="./config.toml",
-        help="Path to the toml config file for interface defaults",
-    )
     parser.add_argument(
         "--listen",
         type=str,
@@ -139,12 +130,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--use-ipex", action="store_true", help="Use IPEX environment")
-    parser.add_argument("--use-rocm", action="store_true", help="Use ROCm environment")
 
     args = parser.parse_args()
 
     UI(
-        config_file_path=args.config,
         username=args.username,
         password=args.password,
         inbrowser=args.inbrowser,
