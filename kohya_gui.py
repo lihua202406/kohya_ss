@@ -97,16 +97,33 @@ def UI(**kwargs):
         """
         gr.HTML(htmlStr)
     # Show the interface
-    launch_kwargs = {
-        "server_name": kwargs.get("listen"),
-        "auth": (kwargs.get("username"), kwargs.get("password")) if kwargs.get("username") and kwargs.get("password") else None,
-        "server_port": kwargs.get("server_port", 0),
-        "inbrowser": kwargs.get("inbrowser", False),
-        "share": False,  # Explicitly set share to False
-        "root_path": kwargs.get("root_path", None),
-        "debug": True,
-    }
+    launch_kwargs = {}
+    username = kwargs.get("username")
+    password = kwargs.get("password")
+    server_port = kwargs.get("server_port", 0)
+    inbrowser = kwargs.get("inbrowser", False)
+    share = kwargs.get("share", False)
+    do_not_share = kwargs.get("do_not_share", True)
+    server_name = kwargs.get("listen")
+    root_path = kwargs.get("root_path", None)
+
+    launch_kwargs["server_name"] = server_name
+    if username and password:
+        launch_kwargs["auth"] = (username, password)
+    if server_port > 0:
+        launch_kwargs["server_port"] = server_port
+    if inbrowser:
+        launch_kwargs["inbrowser"] = inbrowser
+    if do_not_share:
+        launch_kwargs["share"] = False
+    else:
+        if share:
+            launch_kwargs["share"] = share
+    if root_path:
+        launch_kwargs["root_path"] = root_path
+    launch_kwargs["debug"] = True
     interface.launch(**launch_kwargs)
+
 
 if __name__ == "__main__":
     # torch.cuda.set_per_process_memory_fraction(0.48)
@@ -137,13 +154,20 @@ if __name__ == "__main__":
         help="Port to run the server listener on",
     )
     parser.add_argument("--inbrowser", action="store_true", help="Open in browser")
-    parser.add_argument("--headless", action="store_true", help="Is the server headless")
-    parser.add_argument("--language", type=str, default=None, help="Set custom language")
     parser.add_argument("--share", action="store_true", help="Share the gradio UI")
+    parser.add_argument(
+        "--headless", action="store_true", help="Is the server headless"
+    )
+    parser.add_argument(
+        "--language", type=str, default=None, help="Set custom language"
+    )
+
     parser.add_argument("--use-ipex", action="store_true", help="Use IPEX environment")
     parser.add_argument("--use-rocm", action="store_true", help="Use ROCm environment")
 
-    parser.add_argument( "--do_not_use_shell", action="store_true", help="Enforce not to use shell=True when running external commands")
+    parser.add_argument(
+        "--do_not_use_shell", action="store_true", help="Enforce not to use shell=True when running external commands"
+    )
 
     parser.add_argument(
         "--do_not_share", action="store_true", help="Do not share the gradio UI"
