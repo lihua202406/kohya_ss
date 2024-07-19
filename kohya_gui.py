@@ -114,7 +114,6 @@ def UI(**kwargs):
         launch_kwargs["server_port"] = server_port
     if inbrowser:
         launch_kwargs["inbrowser"] = inbrowser
-    if do_not_share:
         launch_kwargs["share"] = False
     else:
         if share:
@@ -154,20 +153,13 @@ if __name__ == "__main__":
         help="Port to run the server listener on",
     )
     parser.add_argument("--inbrowser", action="store_true", help="Open in browser")
+    parser.add_argument("--headless", action="store_true", help="Is the server headless")
+    parser.add_argument("--language", type=str, default=None, help="Set custom language")
     parser.add_argument("--share", action="store_true", help="Share the gradio UI")
-    parser.add_argument(
-        "--headless", action="store_true", help="Is the server headless"
-    )
-    parser.add_argument(
-        "--language", type=str, default=None, help="Set custom language"
-    )
-
     parser.add_argument("--use-ipex", action="store_true", help="Use IPEX environment")
     parser.add_argument("--use-rocm", action="store_true", help="Use ROCm environment")
 
-    parser.add_argument(
-        "--do_not_use_shell", action="store_true", help="Enforce not to use shell=True when running external commands"
-    )
+    parser.add_argument( "--do_not_use_shell", action="store_true", help="Enforce not to use shell=True when running external commands")
 
     parser.add_argument(
         "--do_not_share", action="store_true", help="Do not share the gradio UI"
