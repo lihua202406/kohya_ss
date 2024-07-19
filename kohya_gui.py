@@ -103,7 +103,7 @@ def UI(**kwargs):
     server_port = kwargs.get("server_port", 0)
     inbrowser = kwargs.get("inbrowser", False)
     share = kwargs.get("share", False)
-    do_not_share = kwargs.get("do_not_share", False)
+    do_not_share = kwargs.get("do_not_share", True)
     server_name = kwargs.get("listen")
     root_path = kwargs.get("root_path", None)
 
