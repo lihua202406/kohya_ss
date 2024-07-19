@@ -97,31 +97,16 @@ def UI(**kwargs):
         """
         gr.HTML(htmlStr)
     # Show the interface
-    launch_kwargs = {}
-    username = kwargs.get("username")
-    password = kwargs.get("password")
-    server_port = kwargs.get("server_port", 0)
-    inbrowser = kwargs.get("inbrowser", False)
-    share = kwargs.get("share", False)
-    do_not_share = kwargs.get("do_not_share", True)
-    server_name = kwargs.get("listen")
-    root_path = kwargs.get("root_path", None)
-
-    launch_kwargs["server_name"] = server_name
-    if username and password:
-        launch_kwargs["auth"] = (username, password)
-    if server_port > 0:
-        launch_kwargs["server_port"] = server_port
-    if inbrowser:
-        launch_kwargs["inbrowser"] = inbrowser
-        launch_kwargs["share"] = False
-    else:
-        if share:
-            launch_kwargs["share"] = share
-    if root_path:
-        launch_kwargs["root_path"] = root_path
-    launch_kwargs["debug"] = True
-    interface.launch(**launch_kwargs)
+    launch_kwargs = {
+        "server_name": kwargs.get("listen"),
+        "auth": (kwargs.get("username"), kwargs.get("password")) if kwargs.get("username") and kwargs.get("password") else None,
+        "server_port": kwargs.get("server_port", 0),
+        "inbrowser": kwargs.get("inbrowser", False),
+        "share": False,  # Explicitly set share to False
+        "root_path": kwargs.get("root_path", None),
+        "debug": True,
+    }
+    interface.launch(**launch_kwargs)th
 
 
 if __name__ == "__main__":
