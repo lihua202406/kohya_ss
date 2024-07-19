@@ -12,6 +12,9 @@ from kohya_gui.class_lora_tab import LoRATools
 from kohya_gui.custom_logging import setup_logging
 from kohya_gui.localization_ext import add_javascript
 
+# Set up logging
+log = setup_logging()
+
 
 def UI(**kwargs):
     add_javascript(kwargs.get("language"))
@@ -36,23 +39,8 @@ def UI(**kwargs):
     interface = gr.Blocks(
         css=css, title=f"Kohya_ss GUI {release}", theme=gr.themes.Default()
     )
-
-    config = KohyaSSGUIConfig(config_file_path=kwargs.get("config"))
-
-    if config.is_config_loaded():
-        log.info(f"Loaded default GUI values from '{kwargs.get('config')}'...")
-
-    use_shell_flag = True
-    # if os.name == "posix":
-    #     use_shell_flag = True
-        
-    use_shell_flag = config.get("settings.use_shell", use_shell_flag)
-        
-    if kwargs.get("do_not_use_shell", False):
-        use_shell_flag = False
-        
-    if use_shell_flag:
-        log.info("Using shell=True when running external commands...")
+    
+    config = KohyaSSGUIConfig(config_file_path=kwargs.get("config_file_path"))
 
     with interface:
         with gr.Tab("Dreambooth"):
@@ -61,25 +49,21 @@ def UI(**kwargs):
                 reg_data_dir_input,
                 output_dir_input,
                 logging_dir_input,
-            ) = dreambooth_tab(
-                headless=headless, config=config, use_shell_flag=use_shell_flag
-            )
+            ) = dreambooth_tab(headless=headless, config=config)
         with gr.Tab("LoRA"):
-            lora_tab(headless=headless, config=config, use_shell_flag=use_shell_flag)
+            lora_tab(headless=headless, config=config)
         with gr.Tab("Textual Inversion"):
-            ti_tab(headless=headless, config=config, use_shell_flag=use_shell_flag)
+            ti_tab(headless=headless, config=config)
         with gr.Tab("Finetuning"):
-            finetune_tab(
-                headless=headless, config=config, use_shell_flag=use_shell_flag
-            )
+            finetune_tab(headless=headless, config=config)
         with gr.Tab("Utilities"):
             utilities_tab(
                 train_data_dir_input=train_data_dir_input,
                 reg_data_dir_input=reg_data_dir_input,
                 output_dir_input=output_dir_input,
                 logging_dir_input=logging_dir_input,
+                enable_copy_info_button=True,
                 headless=headless,
-                config=config,
             )
             with gr.Tab("LoRA"):
                 _ = LoRATools(headless=headless)
@@ -97,15 +81,13 @@ def UI(**kwargs):
         """
         gr.HTML(htmlStr)
     # Show the interface
- launch_kwargs = {}
+    launch_kwargs = {}
     username = kwargs.get("username")
     password = kwargs.get("password")
     server_port = kwargs.get("server_port", 0)
     inbrowser = kwargs.get("inbrowser", False)
     share = False
-    do_not_share = True
     server_name = kwargs.get("listen")
-    root_path = kwargs.get("root_path", None)
 
     launch_kwargs["server_name"] = server_name
     if username and password:
@@ -114,10 +96,11 @@ def UI(**kwargs):
         launch_kwargs["server_port"] = server_port
     if inbrowser:
         launch_kwargs["inbrowser"] = inbrowser
-    if root_path:
-        launch_kwargs["root_path"] = root_path
+    if share:
+        launch_kwargs["share"] = False
     launch_kwargs["debug"] = True
-    interface.launch(**launch_kwargs)
+    interface.launch(**launch_kwargs, share=False)
+
 
 if __name__ == "__main__":
     # torch.cuda.set_per_process_memory_fraction(0.48)
@@ -128,7 +111,6 @@ if __name__ == "__main__":
         default="./config.toml",
         help="Path to the toml config file for interface defaults",
     )
-    parser.add_argument("--debug", action="store_true", help="Debug on")
     parser.add_argument(
         "--listen",
         type=str,
@@ -159,21 +141,16 @@ if __name__ == "__main__":
     parser.add_argument("--use-ipex", action="store_true", help="Use IPEX environment")
     parser.add_argument("--use-rocm", action="store_true", help="Use ROCm environment")
 
-    parser.add_argument(
-        "--do_not_use_shell", action="store_true", help="Enforce not to use shell=True when running external commands"
-    )
-
-    parser.add_argument(
-        "--do_not_share", action="store_true", help="Do not share the gradio UI"
-    )
-
-    parser.add_argument(
-        "--root_path", type=str, default=None, help="`root_path` for Gradio to enable reverse proxy support. e.g. /kohya_ss"
-    )
-
     args = parser.parse_args()
 
-    # Set up logging
-    log = setup_logging(debug=args.debug)
-
-    UI(**vars(args))
+    UI(
+        config_file_path=args.config,
+        username=args.username,
+        password=args.password,
+        inbrowser=args.inbrowser,
+        server_port=args.server_port,
+        share=False,
+        listen=args.listen,
+        headless=args.headless,
+        language=args.language,
+    )
