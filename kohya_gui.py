@@ -97,15 +97,13 @@ def UI(**kwargs):
         """
         gr.HTML(htmlStr)
     # Show the interface
-    launch_kwargs = {}
+ launch_kwargs = {}
     username = kwargs.get("username")
     password = kwargs.get("password")
     server_port = kwargs.get("server_port", 0)
     inbrowser = kwargs.get("inbrowser", False)
-    share = kwargs.get("share", False)
-    do_not_share = kwargs.get("do_not_share", True)
+    share = False
     server_name = kwargs.get("listen")
-    root_path = kwargs.get("root_path", None)
 
     launch_kwargs["server_name"] = server_name
     if username and password:
@@ -114,16 +112,10 @@ def UI(**kwargs):
         launch_kwargs["server_port"] = server_port
     if inbrowser:
         launch_kwargs["inbrowser"] = inbrowser
-    if do_not_share:
+    if share:
         launch_kwargs["share"] = False
-    else:
-        if share:
-            launch_kwargs["share"] = share
-    if root_path:
-        launch_kwargs["root_path"] = root_path
     launch_kwargs["debug"] = True
-    interface.launch(share="Flase")
-
+    interface.launch(**launch_kwargs, share=False)
 
 if __name__ == "__main__":
     # torch.cuda.set_per_process_memory_fraction(0.48)
