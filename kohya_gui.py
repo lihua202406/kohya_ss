@@ -115,7 +115,7 @@ def UI(**kwargs):
     if share:
         launch_kwargs["share"] = False
     launch_kwargs["debug"] = True
-    interface.launch(**launch_kwargs, share=False)
+    interface.launch(**launch_kwargs,share=False)
 
 if __name__ == "__main__":
     # torch.cuda.set_per_process_memory_fraction(0.48)
