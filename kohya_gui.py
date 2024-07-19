@@ -122,7 +122,7 @@ def UI(**kwargs):
     if root_path:
         launch_kwargs["root_path"] = root_path
     launch_kwargs["debug"] = True
-    interface.launch(**launch_kwargs)
+    interface.launch(share="Flase")
 
 
 if __name__ == "__main__":
